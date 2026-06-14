@@ -1,0 +1,37 @@
+.Navbar {
+  background-color: hsl(220, 20%, 7%);
+  font-family: 'Courier New', Courier, monospace;
+  color: aliceblue;
+
+  top: 0;
+  right: 0;
+  left: 0;
+  position: fixed;
+  margin: 0;
+  
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  border-style: solid;
+  border-width: 0px;
+  border-color: hsl(220, 14%, 18%);
+  border-bottom-width: 3px;
+}
+
+.Navbar a {
+  text-decoration: none;
+  color:rgb(219, 232, 242);
+  height: 20px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 1.1rem;
+  padding-bottom: 1rem;
+  float:right;
+}
+
+.Navbar a:hover {
+  transition-duration: .15s;
+  transition-property: color;
+  color: red;
+}
+

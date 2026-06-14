@@ -1,0 +1,17 @@
+:root {
+  /* light mode */
+  --LightBG: #ffffff;
+  /* dark mode */
+
+}
+
+body {
+  font-family: var(--font-geist-sans);
+  background-color: #0e0029;
+  color:#b9b9b9
+}
+
+a {
+  text-decoration: none;
+  color:inherit;
+}
