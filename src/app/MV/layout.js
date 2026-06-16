@@ -31,10 +31,6 @@ export default function RootLayout({ children }) {
           {children}
         </main>
 
-        <footer>
-          <a href="https://www.linkedin.com/in/kazya-takahashi/">LinkedIn</a>
-        </footer>
-
       </body>
     </html>
   );

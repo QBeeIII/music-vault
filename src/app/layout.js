@@ -32,7 +32,8 @@ export default function RootLayout({ children }) {
         </main>
 
         <footer>
-          <a href="https://www.linkedin.com/in/kazya-takahashi/">LinkedIn</a>
+          <a href="https://www.linkedin.com/in/kazya-takahashi/">LinkedIn</a> |
+          <a href="https://github.com/QBeeIII"> GitHub</a>
         </footer>
 
       </body>

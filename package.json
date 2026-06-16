@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.4",
+    "bcrypt": "^6.0.0",
     "googleapis": "^173.0.0",
     "libsql": "^0.5.29",
     "next": "16.2.9",
