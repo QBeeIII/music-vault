@@ -115,7 +115,7 @@ export default function RegisterPage()
   
   return (
     <>
-    <p>{process.env.TEST}</p>
+    {/* <p>{process.env.TEST}</p> */}
       <form onSubmit={handleSubmit}>
         
         {errors.length > 0 && <ErrorList list={errors} />}
