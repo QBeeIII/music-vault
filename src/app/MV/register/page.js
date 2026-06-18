@@ -74,20 +74,21 @@ export default function RegisterPage()
     {
       const res = await fetch("/MV/api/register", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({username, passA, passB})
       });
 
       const data = await res.json();
       // console.log("test", data);
-      console.log("test", data)
+      // console.log("test", data)
 
-      if (res.status == 400)
+      if (!res.ok)
       {
         setErrors(data.message);
         setIsLoading(false);
       }
 
-      if (res.status == 201)
+      if (res.ok)
       {
         //success stuff
         setTimeout(() => {
@@ -105,10 +106,6 @@ export default function RegisterPage()
       setErrors(["An unexpected error occurred."]);
       setIsLoading(false);
     }
-
-
-
-
   }
   
   
@@ -137,7 +134,7 @@ export default function RegisterPage()
               <span className="throbber" /> Creating Account...
             </>
           ) : (
-            'Submit'
+            'Register'
           )}
         </button>
       </form>
@@ -145,10 +142,10 @@ export default function RegisterPage()
       {success && (
         <div>
         <h2>Would you like to set up 2-Factor Authentication?</h2>
-        <button onClick={() => router.push('/MV/2FA')}>
+        <button onClick={() => router.replace('/MV/2FA')}>
           Set Up 2FA
         </button>
-        <button onClick={() => router.push('/MV/vault')}>
+        <button onClick={() => router.replace('/MV/vault')}>
           Skip For Now
         </button>
         </div>

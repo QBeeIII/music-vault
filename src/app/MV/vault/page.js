@@ -1,5 +1,6 @@
 import { SongsTable } from "../components/SongsTable";
 import { YoutubeAPI } from "../components/YoutubeAPI";
+import { cookies } from 'next/headers';
 
 
 
@@ -41,7 +42,11 @@ const youtube = google.youtube("v3");
 
 
 
-export default function VaultPage() {
+export default async function VaultPage()
+{
+  const cookieStore = await cookies();
+  const isLoggedIn = !!(cookieStore.get('userId')?.value)
+
   const displayTitle = true;
   const uppercaseTitle = false;
   const displayEndMessage = true;
@@ -59,14 +64,20 @@ export default function VaultPage() {
 
   return (
     <>
-    <YoutubeAPI />
-    {displayTitle && <h1>{title}</h1>}
-    
-    <p>Here is a list of songs I like:</p>
-    <SongsTable songListProp={songList} />
-    <p>
-      {displayEndMessage && <a href="https://www.billboard-japan.com/charts/detail?a=niconico">See More</a>}
-    </p>
+    {isLoggedIn ? (
+      <>
+      <YoutubeAPI />
+      {displayTitle && <h1>{title}</h1>}
+      
+      <p>Here is a list of songs I like:</p>
+      <SongsTable songListProp={songList} />
+      <p>
+        {displayEndMessage && <a href="https://www.billboard-japan.com/charts/detail?a=niconico">See More</a>}
+      </p>
+      </>
+    ) : (
+      <h1>Please log in to view your vault.</h1>
+    )}
     </>
   )
 }

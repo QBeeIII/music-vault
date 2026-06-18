@@ -1,15 +1,15 @@
 import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers';
-import db from '../../db/database'
+//import db from '../../db/database'
 
 //local db so i dont spend credits
-// import { createClient } from '@libsql/client';
-// import path from 'path';
-// const dbPath = path.join(process.cwd(), 'src', 'app', 'MV', 'music-vault.db');
-// const db = createClient({
-//   url: `file:${dbPath}`
-// });
+import { createClient } from '@libsql/client';
+import path from 'path';
+const dbPath = path.join(process.cwd(), 'src', 'app', 'MV', 'music-vault.db');
+const db = createClient({
+  url: `file:${dbPath}`
+});
 
 function validateForm(username, passwordA, passwordB)
 {

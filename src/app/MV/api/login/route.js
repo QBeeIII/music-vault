@@ -29,14 +29,14 @@ export async function POST(req)
     //user DNE
     if (search.rows.length == 0)
     {
-      return NextResponse.json({message: ["Invalid credentials."]}, {status: 401});
+      return NextResponse.json({message: ["Username or password is incorrect, please try again."]}, {status: 401});
     }
 
     const user = search.rows[0];
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword)
     {
-      return NextResponse.json({message: ["Invalid credentials."]}, {status: 401});
+      return NextResponse.json({message: ["Username or password is incorrect, please try again."]}, {status: 401});
     }
 
     const res = NextResponse.json({
@@ -53,7 +53,7 @@ export async function POST(req)
 
     return res;
   }
-  catch
+  catch (error)
   {
     console.error('login error:', error);
     return NextResponse.json({message: ["An unknown error occurred. Please try again."]}, {status: 500});

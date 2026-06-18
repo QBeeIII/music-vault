@@ -6,7 +6,7 @@ export default function HomePage() {
     <h1>Kazya Takahashi</h1>
     <p>Welcome to my website!</p>
 
-    <Link href="/MV/home"><h3>Music Vault</h3></Link>
+    <Link href="/MV"><h3>Music Vault</h3></Link>
     <div>
       <a href="https://www.linkedin.com/in/kazya-takahashi/">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="gray" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg" >
