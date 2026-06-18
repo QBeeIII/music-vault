@@ -1,10 +1,16 @@
 import { createClient } from '@libsql/client';
 
 
+const TURSO_DATABASE_URL = process.env.TURSO_DATABASE_URL;
+const TURSO_AUTH_TOKEN = process.env.TURSO_AUTH_TOKEN;
+
+if (!TURSO_DATABASE_URL || !TURSO_AUTH_TOKEN) {
+  throw new Error('Missing Turso DB environment variables. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN.');
+}
+
 const db = createClient({
-  // url: "file:../music-vault.db",
-  url: process.env.TURSO_DATABASE_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
+  url: TURSO_DATABASE_URL,
+  authToken: TURSO_AUTH_TOKEN,
 });
 
 

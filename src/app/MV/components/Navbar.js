@@ -1,13 +1,16 @@
-import navbarStyles from "./Navbar.module.css"
-import Link from "next/link"
-import { cookies } from "next/headers"
-import { LogoutButton } from './Logout'
+import navbarStyles from './Navbar.module.css';
+import Link from 'next/link';
+import { cookies } from 'next/headers';
+import { LogoutButton } from './Logout';
+import { verifyJwt } from '../lib/jwt';
 
 
-export async function Navbar()
-{
+
+export async function Navbar() {
   const cookieStore = await cookies();
-  const isLoggedIn = !!(cookieStore.get('userId')?.value)
+  const authToken = cookieStore.get('auth_token')?.value;
+  const payload = verifyJwt(authToken);
+  const isLoggedIn = !!payload?.sub;
 
   return (
     <header className={navbarStyles.Navbar}>

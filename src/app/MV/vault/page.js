@@ -1,11 +1,10 @@
-import { SongsTable } from "../components/SongsTable";
-import { YoutubeAPI } from "../components/YoutubeAPI";
+import { SongsTable } from '../components/SongsTable';
+import { YoutubeAPI } from '../components/YoutubeAPI';
 import { cookies } from 'next/headers';
+import { verifyJwt } from '../lib/jwt';
 
-
-
-const {google} = require("googleapis");
-const youtube = google.youtube("v3");
+const { google } = require('googleapis');
+const youtube = google.youtube('v3');
 
 
 
@@ -42,10 +41,11 @@ const youtube = google.youtube("v3");
 
 
 
-export default async function VaultPage()
-{
+export default async function VaultPage() {
   const cookieStore = await cookies();
-  const isLoggedIn = !!(cookieStore.get('userId')?.value)
+  const authToken = cookieStore.get('auth_token')?.value;
+  const payload = verifyJwt(authToken);
+  const isLoggedIn = !!payload?.sub;
 
   const displayTitle = true;
   const uppercaseTitle = false;

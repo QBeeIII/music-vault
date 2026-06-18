@@ -28,7 +28,16 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment variables
 
+For Vercel deployment and Turso access, set these variables in your project settings:
+
+- `TURSO_DATABASE_URL` — the Turso database URL that starts with `libsql://...`
+- `TURSO_AUTH_TOKEN` — the Turso auth token for your database
+- `JWT_SECRET` — a strong secret used only on the server to sign JWTs
+- `YT_API_KEY` — the Google YouTube API key used by the vault's YouTube helper
+
+Do not expose secrets as `NEXT_PUBLIC_*`; keep them in server-only environment variables.
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

@@ -1,62 +1,100 @@
 import bcrypt from 'bcrypt';
-import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers';
-//import db from '../../db/database'
+import { NextResponse } from 'next/server';
+import db from '../../db/database';
+import { createAccessToken, createRefreshToken, getAccessTokenExpiry, getRefreshTokenExpiry } from '../../lib/jwt';
+import { enforceRateLimit, clearRateLimit, validateLoginPayload, getClientIp } from '../../lib/auth';
 
-//local db so i dont spend credits
-import { createClient } from '@libsql/client';
-import path from 'path';
-const dbPath = path.join(process.cwd(), 'src', 'app', 'MV', 'music-vault.db');
-const db = createClient({
-  url: `file:${dbPath}`
-});
+export async function POST(req) {
+  try {
+    const { username, password } = await req.json();
+    const ip = getClientIp(req);
+    const rateLimitKey = `login:${ip}:${username || 'unknown'}`;
+    const rateLimitError = enforceRateLimit(rateLimitKey, 5, 60 * 5);
 
+    if (rateLimitError) {
+      return NextResponse.json({ message: [rateLimitError] }, { status: 429 });
+    }
 
-export async function POST(req)
-{
-  const formData = await req.json();
-  const username = formData.username;
-  const password = formData.password;
+    const validationErrors = validateLoginPayload(username, password);
+    if (validationErrors.length > 0) {
+      return NextResponse.json({ message: validationErrors }, { status: 400 });
+    }
 
-
-  try
-  {
-    const search = await db.execute({
-        sql: "SELECT * FROM users WHERE username = ?",
-        args: [username]
-      });
+    const userResult = await db.execute({
+      sql: 'SELECT id, username, password, twofa_secret FROM users WHERE username = ?',
+      args: [username]
+    });
     
-    //user DNE
-    if (search.rows.length == 0)
-    {
-      return NextResponse.json({message: ["Username or password is incorrect, please try again."]}, {status: 401});
+    const user = userResult.rows[0];
+    
+    if (!user) {
+      return NextResponse.json(
+        { message: ['Invalid credentials'] },
+        { status: 401 }
+      );
+    }
+    
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { message: ['Invalid credentials'] },
+        { status: 401 }
+      );
+    }
+    
+    const twoFAEnabled = Boolean(user.twofa_secret);
+
+    if (twoFAEnabled) {
+      const response = NextResponse.json({
+        success: true,
+        requires2FA: true,
+        message: ['2FA verification required']
+      });
+
+      response.cookies.set('pending_2fa_user', user.id.toString(), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 5
+      });
+
+      return response;
     }
 
-    const user = search.rows[0];
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword)
-    {
-      return NextResponse.json({message: ["Username or password is incorrect, please try again."]}, {status: 401});
-    }
+    clearRateLimit(rateLimitKey);
 
-    const res = NextResponse.json({
+    const accessToken = createAccessToken({ sub: user.id.toString(), username: user.username });
+    const refreshToken = createRefreshToken({ sub: user.id.toString(), username: user.username });
+    const response = NextResponse.json({
       success: true,
-      message: ["Login successful."],
-    }, {status: 200});
-
-    res.cookies.set('userId', user.id.toString(), {
-      httpOnly: true,
-      secure: false, //change for prod
-      sameSite: 'lax',
-      maxAge: 60*60*24*7
+      requires2FA: false,
+      message: ['Login successful']
     });
 
-    return res;
-  }
-  catch (error)
-  {
-    console.error('login error:', error);
-    return NextResponse.json({message: ["An unknown error occurred. Please try again."]}, {status: 500});
-  }
+    response.cookies.set('auth_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: getAccessTokenExpiry()
+    });
 
+    response.cookies.set('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: getRefreshTokenExpiry()
+    });
+
+    return response;
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    return NextResponse.json(
+      { message: ['An unexpected error occurred. Please try again.'] },
+      { status: 500 }
+    );
+  }
 }

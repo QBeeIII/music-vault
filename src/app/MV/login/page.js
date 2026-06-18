@@ -1,19 +1,15 @@
 "use client";
-import { useState } from 'react'
-import { ErrorList } from '../components/ErrorList'
+import { useState } from 'react';
+import { ErrorList } from '../components/ErrorList';
 import { useRouter } from 'next/navigation';
-import "./login.css"
+import './login.css';
 
-
-export default function LoginPage()
-{
-
-  const router = useRouter();  
+export default function LoginPage() {
+  const router = useRouter();
   const [errors, setErrors] = useState([]);
   const [userFound, setUserFound] = useState(false);
   const [hasTwoFA, setHasTwoFA] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [username, setUsername] = useState('');
 
   function validateForm(username, password)
   {
@@ -48,13 +44,10 @@ export default function LoginPage()
     setIsLoading(true);
     
     const formData = new FormData(e.target);
-    // console.log(formData);
-
-    const formUsername = formData.get('Username')
-    setUsername(formUsername);
+    const username = formData.get('Username')
     const password = formData.get('Password');
     
-    const validationErrors = validateForm(formUsername, password);
+    const validationErrors = validateForm(username, password);
     setErrors(validationErrors);
     if (validationErrors.length > 0)
     {
@@ -67,27 +60,31 @@ export default function LoginPage()
       const res = await fetch("/MV/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({username: formUsername, password})
+        body: JSON.stringify({username, password})
       });
 
       const data = await res.json();
-      // console.log("test", data);
-      console.log("test", data)
 
       if (!res.ok)
       {
-        setErrors(data.message);
+        setErrors(Array.isArray(data.message) ? data.message : [data.message || 'Login failed']);
         setIsLoading(false);
+        return;
       }
 
-      if (res.ok && data.twoFA)
-      {
-        setTimeout(() => {
+      if (res.ok) {
+        if (data.requires2FA) {
+          setHasTwoFA(true);
           setUserFound(true);
           setIsLoading(false);
-        }, 1500);
-
-        setHasTwoFA(Boolean(data.twoFA))
+          return;
+        }
+        setHasTwoFA(false);
+        setUserFound(true);
+        setIsLoading(false);
+        // router.replace('/MV/vault');
+        // router.refresh();
+        return;
       }
     }
     catch (error)
@@ -108,37 +105,36 @@ export default function LoginPage()
     setIsLoading(true);
     
     const formData = new FormData(e.target);
-    // console.log(formData);
-
     const code = formData.get('twoFACode');
 
-    if (code.length != 6)
+    if (!code || code.length !== 6)
     {
       setErrors(['Authentication code entered is not 6 digits.']);
       setIsLoading(false);
       return;
     }
 
-    try
-    {
-      const res = await fetch("/MV/api/2fa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({username, code})
+    try {
+      const res = await fetch('/MV/api/2fa/verify-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
       });
 
       const data = await res.json();
+      
       if (!res.ok)
       {
-        setErrors(data.message);
+        setErrors(Array.isArray(data.message) ? data.message : [data.message || 'Verification failed']);
         setIsLoading(false);
+        return;
       }
 
       if (res.ok)
       {
         router.replace('/MV/vault');
+        router.refresh();
       }
-
     }
     catch (error)
     {
@@ -150,60 +146,95 @@ export default function LoginPage()
       setIsLoading(false);
     }
   }
-  
+
+  const handleSkip2FA = () => {
+    router.push('/MV/vault');
+    router.refresh();
+  };
+
+  const handleSetup2FA = () => {
+    router.push('/MV/2FA');
+    router.refresh();
+  };
+
   return (
     <>
-      <form onSubmit={handleLogin}>
-        
-        {errors.length > 0 && <ErrorList list={errors} />}
-        
-        <label>Username</label> <br />
-        <input name="Username" autoComplete="username" disabled={isLoading}/> <br />
-        <label>Password</label> <br />
-        <input name="Password" autoComplete="current-password" type="password" disabled={isLoading}/> <br />
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className={isLoading ? 'loading' : ''}
-        >
-          {isLoading ? (
-            <>
-              <span className="throbber" /> Logging In...
-            </>
-          ) : (
-            'Log In'
-          )}
-        </button>
-      </form>
-      
-      {userFound && (!hasTwoFA ? (
-        <div>
-        <h2>Would you like to set up 2-Factor Authentication?</h2>
-        <button onClick={() => router.replace('/MV/2FA')}>
-          Set Up 2FA
-        </button>
-        <button onClick={() => router.replace('/MV/vault')}>
-          Skip For Now
-        </button>
-        </div>
-      ) : (
-        <form onSubmit={handle2FA}>
+      {!userFound ? (
+        <form onSubmit={handleLogin}>
           {errors.length > 0 && <ErrorList list={errors} />}
+          
+          <label>Username</label> <br />
+          <input 
+            name="Username" 
+            autoComplete="username" 
+            disabled={isLoading}
+            required
+          /> <br />
+          
+          <label>Password</label> <br />
+          <input 
+            name="Password" 
+            autoComplete="current-password" 
+            type="password" 
+            disabled={isLoading}
+            required
+          /> <br />
 
-          <p>Please enter your two-factor authentication code.</p>
-          <input
-            name="twoFACode"
-            type="text"
-            maxLength="6"
-            pattern="[0-9]{6}"
-            disabled={isLoading}  
-          />
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Verifying...' : 'Verify'}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={isLoading ? 'loading' : ''}
+          >
+            {isLoading ? (
+              <>
+                <span className="throbber" /> Logging In...
+              </>
+            ) : (
+              'Log In'
+            )}
           </button>
         </form>
-      ))}
+      ) : (
+        <>
+          {hasTwoFA ? (
+            <form onSubmit={handle2FA}>
+              {errors.length > 0 && <ErrorList list={errors} />}
+
+              <p>Please enter your two-factor authentication code.</p>
+              <input
+                name="twoFACode"
+                type="text"
+                maxLength="6"
+                pattern="[0-9]{6}"
+                disabled={isLoading}
+                placeholder="Enter 6-digit code"
+                required
+                autoFocus
+              />
+              <button type="submit" disabled={isLoading}>
+                {isLoading ? 'Verifying...' : 'Verify'}
+              </button>
+              
+              <p>
+                <small>Lost access to your authenticator app? <a href="/MV/backup-codes">Use a backup code</a></small>
+              </p>
+            </form>
+          ) : (
+            <div>
+              <h2>Would you like to set up 2-Factor Authentication?</h2>
+              <p>Adding 2FA makes your account more secure.</p>
+              
+              <button onClick={handleSetup2FA}>
+                Set Up 2FA
+              </button>
+              
+              <button onClick={handleSkip2FA}>
+                Skip For Now
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </>
   )
 }

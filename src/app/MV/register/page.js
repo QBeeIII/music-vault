@@ -142,10 +142,10 @@ export default function RegisterPage()
       {success && (
         <div>
         <h2>Would you like to set up 2-Factor Authentication?</h2>
-        <button onClick={() => router.replace('/MV/2FA')}>
+        <button onClick={() => {router.replace('/MV/2FA'); router.refresh()}}>
           Set Up 2FA
         </button>
-        <button onClick={() => router.replace('/MV/vault')}>
+        <button onClick={() => {router.replace('/MV/vault'); router.refresh()}}>
           Skip For Now
         </button>
         </div>

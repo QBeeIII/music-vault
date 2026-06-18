@@ -4,9 +4,11 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req)
 {
-  try
-  {
-    (await cookies()).delete('userId');
+  try {
+    const cookieStore = await cookies();
+    cookieStore.delete('auth_token');
+    cookieStore.delete('refresh_token');
+    cookieStore.delete('pending_2fa_user');
 
     return NextResponse.json({
       success: true,
