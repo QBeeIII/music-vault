@@ -9,7 +9,7 @@
 
 .tableRow {
   display: grid;
-  grid-template-columns: 2.2fr 1.4fr 1.4fr 1.7fr;
+  grid-template-columns: 2.2fr 1.4fr 1.4fr 1.7fr 0.95fr;
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -69,6 +69,93 @@
   transform: translateX(1px);
 }
 
+.actionCell {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.actionButtons,
+.editActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.secondaryButton,
+.primaryButton,
+.dangerButton {
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.secondaryButton:hover,
+.primaryButton:hover,
+.dangerButton:hover {
+  transform: translateY(-1px);
+}
+
+.secondaryButton {
+  background: rgba(148, 163, 184, 0.18);
+  color: #f8fafc;
+}
+
+.primaryButton {
+  background: linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
+  color: white;
+}
+
+.dangerButton {
+  background: rgba(248, 113, 113, 0.16);
+  color: #fecaca;
+}
+
+.editingLabel {
+  color: #7dd3fc;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 16px 20px 20px;
+  background: rgba(15, 23, 42, 0.86);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.editFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.editField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: #cbd5e1;
+  font-size: 0.86rem;
+}
+
+.editField input {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  padding: 0.7rem 0.8rem;
+}
+
+.editField input:focus {
+  outline: 2px solid rgba(56, 189, 248, 0.35);
+  border-color: rgba(56, 189, 248, 0.55);
+}
+
 .tableMessage,
 .tableMessageError {
   padding: 18px 20px;
@@ -82,7 +169,7 @@
 
 @media (max-width: 960px) {
   .tableRow {
-    grid-template-columns: 1.6fr 1.2fr 1.2fr 1.4fr;
+    grid-template-columns: 1.6fr 1.2fr 1.2fr 1.4fr 0.8fr;
   }
 }
 
@@ -107,8 +194,16 @@
     gap: 0.35rem;
   }
 
+  .actionCell {
+    justify-content: flex-start;
+  }
+
   .tableCell span,
   .tableCell a {
     white-space: normal;
+  }
+
+  .editFields {
+    grid-template-columns: 1fr;
   }
 }

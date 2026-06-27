@@ -68,8 +68,8 @@ export async function POST(req)
 
       try
       {
-        const insert = await db.execute({
-          sql: 'UPDATE songs SET (title = ?, artist = ?, album = ?, link = ?) WHERE id = ?',
+        const modify = await db.execute({
+          sql: 'UPDATE songs SET title = ?, artist = ?, album = ?, link = ? WHERE id = ?',
           args: [title, artist, album, link, songID]
         });
       }
@@ -89,7 +89,7 @@ export async function POST(req)
 
       try
       {
-        const insert = await db.execute({
+        const destroy = await db.execute({
           sql: 'DELETE FROM songs WHERE id = ?',
           args: [songID]
         });

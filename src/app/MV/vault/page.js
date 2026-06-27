@@ -60,6 +60,7 @@ export default async function VaultPage() {
   }
   
 
+  //testing only
   const songList = [
     {artist:"鬱P", title:"かくさしゃかい"},
     {artist:"鬱P", title:"シマシマメロディ"},
@@ -80,7 +81,7 @@ export default async function VaultPage() {
       <SongInput />
 
 
-      <SongsTable songListProp={songList} />
+      <SongsTable />
 
       </>
     ) : (
